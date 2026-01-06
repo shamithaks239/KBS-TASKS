@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.31;
+pragma solidity ^0.8.20;
 
 contract PersonalSavingsBank {
 
@@ -96,4 +96,5 @@ contract PersonalSavingsBank {
         totalDeposits += msg.value;
         emit Deposit(msg.sender, msg.value);
     }
+
 }
