@@ -109,37 +109,33 @@ Events allow tracking activity on the blockchain.
 
 ## Ownership Logic
 
-## Owner Initialization
+### Owner Initialization
 The owner is set during deployment as the address that deploys the contract (msg.sender) via the constructor.
 * `owner = msg.sender;`
   
 This owner address represents the administrator of the vault.
 
 ---
-``
-## Owner-Restricted Functions
+
+### Owner-Restricted Functions
 Certain sensitive operations are restricted to the owner using the `modifier onlyOwner`, which verifies that the caller is the current owner.
 The functions can only be executed by the owner:
 withdraw(uint256 amount), freezeVault(), unfreezeVault(), transferOwnership(address newOwner) 
 
+Any attempt by a non-owner to call these functions will revert the transaction.
 
-The deployer is set as owner using `constructor(uint256 _lockDuration)` at contract deployment.
+---
 
-* The `onlyOwner` modifier ensures that only the owner can:
-  Withdraw funds, Freeze or unfreeze the vault and transfer ownership.
+### Ownership Transfer
 
-* Ownership can be transferred using `transferOwnership(address newOwner)`:
+The contract allows the current owner to transfer ownership to a new address using `transferOwnership`.
+The previous owner loses all privileged access and the new owner gains full control of owner-restricted functions
 
-  * The current owner calls the function
-  * The owner address is updated
-  * An `OwnershipTransferred` event is emitted
 
-* After ownership transfer:
+* This ownership design provides controlled access to critical functions while preventing unauthorized interactions.
 
-  * The previous owner loses all privileged access
-  * The new owner gains full control of owner-restricted functions
+---
 
-This design ensures secure, transparent, and controlled access to the vault.
 
 
 
