@@ -2,53 +2,144 @@
 SHAMITHA K S
 25IM10062
 
-PRIVATE DIGITAL VAULT
+# PersonalSavingsBank Smart Contract
 
+---
+
+## Overview
 The contract PersonalSavingsBank is a private digital vault written in solidity.It allows users to deposit and owner to withdraw Ether with safety contols such as Emeregency freeze, Deposit limits, ownership transfer, time locked withdrawals and audit tracking.
 
-### FEATURES:
-Owner only withdrawals
-Time locked funds
-Emergency freeze 
-Tracks total deposits and withdrawals
-Deposit limit per transaction
-Ownership transfer
-Detailed blockchain events
-Safe fallback & receive handling
+---
 
+## Features:
+* Owner only withdrawals
+* Time locked funds
+* Emergency freeze 
+* Tracks total deposits and withdrawals
+* Deposit limit per transaction
+* Ownership transfer
+* Detailed blockchain events
+* Safe fallback & receive handling
 
-Solidity Version: pragma solidity ^0.8.31;
-License: MIT
+---
 
+* Solidity Version: pragma solidity ^0.8.31;
+* License: MIT
 
-### State Variables
-- `uint256 public unlockTime;`  
+---
+
+## State Variables
+* `address public owner;`
+  Address of the contract owner.
+  
+* `uint256 public unlockTime;`  
   Timestamp after which withdrawals are allowed (time-lock).
   
-- `bool public frozen;`  
+* `bool public frozen;`  
   Indicates whether the vault is frozen or not.
 
+---
 
-### Events
+## Events
 Events allow tracking activity on the blockchain.
+* `Deposit(address indexed sender, uint256 amount)`
+  Emitted when ETH is deposited into the vault.
 
+* `Withdraw(uint256 amount)`
+  Emitted when ETH is withdrawn from the vault.
 
-### Constructor
-Sets the deployer as the owner.
-Locks the vault for a specified duration by the owner.
+* `VaultFrozen(bool status)`
+  Emitted when the vault is frozen or unfrozen.
 
+* `OwnershipTransferred(address indexed oldOwner, address indexed newOwner)`
+  Emitted when contract ownership is transferred.
 
-### Modifiers
-- `modifier onlyOwner()`  
+---
+
+## Constructor
+* `constructor(uint256 _lockDuration)`
+* Sets the deployer as the owner.
+* Locks the vault for a duration specified by the owner.
+
+---
+
+## Modifiers
+* `modifier onlyOwner()`  
   Restricts function access to the owner only.
 
-- `modifier notFrozen()`  
+* `modifier notFrozen()`  
   Prevents withdrawals when the vault is frozen.
 
+---
+
+## Functions
+
+* `deposit()`
+  Allows users to deposit ETH into the vault.
+  Deposit amount must be greater than zero and not exceed `maxDeposit`.
+  Deposit amount is added to `totalDeposits`.
+  
+* `withdraw(uint256 amount)`
+  Allows the owner to withdraw ETH after the time-lock expires.
+  Withdraw amount must be less than the balance.
+  Withdrawals are blocked if the vault is frozen by the owner in the case of any suspicious behaviour.
+
+* `freezeVault()`
+  Freezes the vault in case of an emergency.
+
+* `unfreezeVault()`
+  Unfreezes the vault and restores withdrawal functionality.
+
+* `transferOwnership(address newOwner)`
+  Transfers ownership of the contract to a new address.
+
+* `getBalance()`
+  Returns the current ETH balance of the contract.
+
+---
+
+## Receive & Fallback
+*  `receive()` 
+  The contract accepts ETH transfers without any calldata (send() or transfer()) because of this.
+* `fallback()`
+  It is executed when no other function signature matches the call data.
+  All incoming ETH is counted as a deposit and emits a `Deposit` event.
+
+---
+
+## Ownership Logic
+
+## Owner Initialization
+The owner is set during deployment as the address that deploys the contract (msg.sender) via the constructor.
+* `owner = msg.sender;`
+  
+This owner address represents the administrator of the vault.
+
+---
+``
+## Owner-Restricted Functions
+Certain sensitive operations are restricted to the owner using the `modifier onlyOwner`, which verifies that the caller is the current owner.
+The functions can only be executed by the owner:
+withdraw(uint256 amount), freezeVault(), unfreezeVault(), transferOwnership(address newOwner) 
 
 
+The deployer is set as owner using `constructor(uint256 _lockDuration)` at contract deployment.
 
+* The `onlyOwner` modifier ensures that only the owner can:
+  Withdraw funds, Freeze or unfreeze the vault and transfer ownership.
 
+* Ownership can be transferred using `transferOwnership(address newOwner)`:
+
+  * The current owner calls the function
+  * The owner address is updated
+  * An `OwnershipTransferred` event is emitted
+
+* After ownership transfer:
+
+  * The previous owner loses all privileged access
+  * The new owner gains full control of owner-restricted functions
+
+This design ensures secure, transparent, and controlled access to the vault.
 
 
 
